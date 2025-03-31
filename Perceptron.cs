@@ -24,6 +24,10 @@ public class Perceptron
         {
             throw new ArgumentException("data and results must have the same length");
         }
+        if (data.Any(input => input.Length != _dimension))
+        {
+            throw new ArgumentException($"The dimension of classes must be {_dimension}");
+        }
         for (var iter = 0; iter < data.Length; iter++) 
         {
             var scalar = Convert.ToInt32(results[iter]) - Convert.ToInt32(Compute(data[iter]));
