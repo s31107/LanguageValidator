@@ -1,6 +1,6 @@
 namespace LanguageValidator;
 
-// Przerobić int na etykiety string.
+// Converts int ids to string ids:
 
 public class PerceptronLayer
 {
