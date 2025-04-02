@@ -1,41 +1,41 @@
 namespace LanguageValidator;
 
-// Converts int ids to string ids:
-
 public class PerceptronLayer
 {
-    private readonly Perceptron[] _layer;
+    private readonly Dictionary<string, Perceptron> _layer;
     private readonly Random _rand;
     
-    public PerceptronLayer(int dimension, int numberOfClasses, double learningRate)
+    public PerceptronLayer(int dimension, string[] labels, double learningRate)
     {
-        _layer = new Perceptron[numberOfClasses];
+        _layer = new Dictionary<string, Perceptron>();
         _rand = new Random();
-        for (var i = 0; i < numberOfClasses; i++)
+        foreach (var label in labels)
         {
-            _layer[i] = new Perceptron(dimension, learningRate);
+            _layer.Add(label, new Perceptron(dimension, learningRate));
         }
     }
 
-    public void Train(Tuple<int, double[]>[] inputs)
+    public void Train(Tuple<string, double[]>[] inputs)
     {
-        if (inputs.Any(item => item.Item1 >= _layer.Length || item.Item1 < 0))
+        if (inputs.Any(item => !_layer.ContainsKey(item.Item1)))
         {
-            throw new ArgumentException($"Class id should be between 0 and {_layer.Length}");
+            throw new ArgumentException("Specified labels are not in Perceptron layer labels");
         }
 
         var shuffledElements = inputs.OrderBy(_ => _rand.Next()).ToList();
-
-        for (var perceptronIndex = 0; perceptronIndex < _layer.Length; perceptronIndex++)
+        
+        foreach (var perceptron in _layer)
         {
-            _layer[perceptronIndex].Learn(shuffledElements.Select(elem => elem.Item2).ToArray(), 
-                shuffledElements.Select(elem => elem.Item1 == perceptronIndex).ToArray());
+            perceptron.Value.Learn(shuffledElements.Select(elem => elem.Item2).ToArray(), 
+                shuffledElements.Select(elem => elem.Item1 == perceptron.Key).ToArray());
         }
     }
 
-    public int MaximumSelector(double[] vector)
+    public string? MaximumSelector(double[] vector)
     {
-        var results = _layer.Select(perceptron => perceptron.ComputeNet(vector)).ToList();
-        return results.IndexOf(results.Max());
+        var maxSelect = _layer.Select(perceptron => 
+            new Tuple<string, double>(perceptron.Key, perceptron.Value.ComputeNet(vector))).MaxBy(
+            t => t.Item2);
+        return maxSelect?.Item1;
     }
 }
