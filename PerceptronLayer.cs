@@ -15,6 +15,11 @@ public class PerceptronLayer
         }
     }
 
+    public void NormalizeWeights()
+    {
+        foreach (var perceptron in _layer.Values) perceptron.NormalizeWeights();
+    }
+    
     public void Train(Tuple<string, double[]>[] inputs)
     {
         if (inputs.Any(item => !_layer.ContainsKey(item.Item1)))

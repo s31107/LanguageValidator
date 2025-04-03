@@ -40,7 +40,7 @@ public class Perceptron
         } 
     }
 
-    public void NormalizeWeights() => NormalizeVector(_weights);
+    public void NormalizeWeights() => NormalizeVector(_weights, _dimension);
     
     public double ComputeNet(double[] data)
     {
@@ -48,15 +48,16 @@ public class Perceptron
         {
             throw new ArgumentException($"Vectors must have length: {_dimension}");
         }
-        return NormalizeVector(data).Select((num, iter) => _weights[iter] * num).Sum();
+        return NormalizeVector(data, data.Length).Select((num, iter) => 
+            _weights[iter] * num).Sum() - _weights[^1];
     }
     
-    private bool Compute(double[] data) => ComputeNet(data) >= _weights[^1];
+    private bool Compute(double[] data) => ComputeNet(data) >= 0;
 
-    private static double[] NormalizeVector(double[] vector)
+    private static double[] NormalizeVector(double[] vector, int end)
     {
         var norm = Math.Sqrt(vector.Select((num, _) => Math.Pow(num, 2)).Sum());
-        for (var i = 0; i < vector.Length; i++)
+        for (var i = 0; i < end; i++)
         {
             vector[i] /= norm;
         } return vector;
